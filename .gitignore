@@ -10,16 +10,14 @@
 .svn/
 migrate_working_dir/
 
-# IntelliJ related
+# IntelliJ/Android Studio related
 *.iml
 *.ipr
 *.iws
 .idea/
 
-# The .vscode folder contains launch configuration and tasks you configure in
-# VS Code which you may wish to be included in version control, so this line
-# is commented out by default.
-#.vscode/
+# VS Code
+.vscode/
 
 # Flutter/Dart/Pub related
 **/doc/api/
@@ -30,6 +28,7 @@ migrate_working_dir/
 .pub-cache/
 .pub/
 /build/
+.packages
 
 # Symbolication related
 app.*.symbols
@@ -37,7 +36,102 @@ app.*.symbols
 # Obfuscation related
 app.*.map.json
 
-# Android Studio will place build artifacts here
+# Android/IntelliJ
 /android/app/debug
 /android/app/profile
 /android/app/release
+/android/gradle-wrapper.jar
+/android/.gradle/
+/android/captures/
+/android/gradlew
+/android/gradlew.bat
+/android/local.properties
+/android/settings.gradle
+/android/.idea/
+/android/*/build/
+/android/*/local.properties
+/android/*/out
+/android/*/*/build
+/android/*/*/production
+/android/app/*/build/
+/android/app/*/proguard/
+/android/ios/
+
+# iOS
+/ios/.generated/
+/ios/Flutter/App.framework/
+/ios/Flutter/Flutter.framework/
+/ios/Flutter/Flutter.podspec
+/ios/Flutter/Generated.xcconfig
+/ios/Flutter/app.flx
+/ios/Flutter/app.zip
+/ios/Flutter/flutter_assets/
+/ios/Flutter/flutter_export_environment.sh
+/ios/ServiceDefinitions.json
+/ios/Runner/GeneratedPluginRegistrant.*
+/ios/Podfile.lock
+/ios/Pods/
+/ios/Runner.xcworkspace/
+/ios/Runner.xcodeproj/project.xcworkspace/
+/ios/Runner.xcodeproj/xcuserdata/
+/ios/Runner.xcworkspace/xcuserdata/
+
+# macOS
+.DS_Store
+**/.DS_Store
+
+# Windows
+*.user
+*.userosscache
+*.sln.docstates
+*.suo
+*.userprefs
+*.lock.json
+*.vs/
+*.vscode/
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Local development
+pubspec_overrides.yaml
+
+# Logs
+*.log
+
+# Coverage
+coverage/
+
+# Test coverage
+*.lcov
+
+# Web
+web/
+
+# IntelliJ specific
+*.iml
+.idea/
+
+# VS Code specific
+.vscode/
+
+# Flutter/Dart specific
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+
+# Android specific
+android/app/src/main/res/raw/
+
+# iOS specific
+ios/Flutter/Flutter.podspec
+ios/Flutter/Flutter.framework/
+ios/Flutter/Generated.xcconfig
+ios/Flutter/app.flx
+ios/Flutter/app.zip
+ios/Flutter/flutter_assets/
+ios/Flutter/flutter_export_environment.sh
+ios/ServiceDefinitions.json
+ios/Runner/GeneratedPluginRegistrant.*
