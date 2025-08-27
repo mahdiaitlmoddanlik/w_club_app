@@ -1,34 +1,35 @@
 workflows:
-  ios-workflow:
-    name: iOS Build
+  ios-device-build:
+    name: iOS – Development IPA for iPads
     environment:
       flutter: stable
       xcode: latest
+      # This group must contain the 3 vars listed below.
       groups:
-        - "My App Store Key" 
+        - "My App Store Key"
       vars:
-        BUNDLE_ID: "com.example.wClub" 
+        # Must match Runner.xcodeproj (yours already does).
+        BUNDLE_ID: "com.example.wClub"
     scripts:
       - keychain initialize
-      
-      # --- THIS IS THE NEW, EXPLICIT COMMAND ---
+
+      # Fetch dev certs & provisioning profiles via ASC API
       - |
           app-store-connect fetch-signing-files "$BUNDLE_ID" \
-            --type IOS_APP_STORE \
+            --type IOS_APP_DEVELOPMENT \
             --issuer-id "$APP_STORE_CONNECT_ISSUER_ID" \
-            --key-id "$APP_STORE_CONNECT_KEY_ID" \
-            --private-key "$APP_STORE_CONNECT_PRIVATE_KEY"
+            --key-id "$APP_STORE_CONNECT_KEY_IDENTIFIER" \
+            --private-key "$APP_STORE_CONNECT_PRIVATE_KEY" \
+            --create
 
       - keychain add-certificates
       - xcode-project use-profiles
       - flutter pub get
-      - flutter build ipa
-      
+
+      # Build a Development-signed IPA (for local install)
+      - flutter build ipa --export-method development
+
     artifacts:
       - build/ios/ipa/*.ipa
-      
-    publishing:
-      app_store_connect:
-        api_key: $APP_STORE_CONNECT_API_KEY
-        key_id: $APP_STORE_CONNECT_KEY_ID
-        issuer_id: $APP_STORE_CONNECT_ISSUER_ID
+
+    # No App Store publishing – we’re just saving the IPA
