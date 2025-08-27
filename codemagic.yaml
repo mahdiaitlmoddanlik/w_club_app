@@ -4,19 +4,29 @@ workflows:
     environment:
       flutter: stable
       xcode: latest
-      groups: # <-- THIS IS THE CRITICAL FIX
-        - "My App Store Key"
+      groups:
+        - "My App Store Key" 
       vars:
         BUNDLE_ID: "com.example.wClub" 
     scripts:
       - keychain initialize
-      - app-store-connect fetch-signing-files "$BUNDLE_ID" --type IOS_APP_STORE
+      
+      # --- THIS IS THE NEW, EXPLICIT COMMAND ---
+      - |
+          app-store-connect fetch-signing-files "$BUNDLE_ID" \
+            --type IOS_APP_STORE \
+            --issuer-id "$APP_STORE_CONNECT_ISSUER_ID" \
+            --key-id "$APP_STORE_CONNECT_KEY_ID" \
+            --private-key "$APP_STORE_CONNECT_PRIVATE_KEY"
+
       - keychain add-certificates
       - xcode-project use-profiles
       - flutter pub get
       - flutter build ipa
+      
     artifacts:
       - build/ios/ipa/*.ipa
+      
     publishing:
       app_store_connect:
         api_key: $APP_STORE_CONNECT_API_KEY
