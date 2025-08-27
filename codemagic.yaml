@@ -5,11 +5,11 @@ workflows:
       flutter: stable
       xcode: latest
       vars:
-        # IMPORTANT: Make sure this matches your actual bundle ID from Xcode
         BUNDLE_ID: "com.example.w_club" 
     scripts:
       - flutter pub get
-      - flutter build ipa --export-options-plist=ios/exportOptions.plist
+      # THIS LINE IS NOW SIMPLER
+      - flutter build ipa 
     artifacts:
       - build/ios/ipa/*.ipa
     publishing:
