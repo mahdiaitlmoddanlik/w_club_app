@@ -5,7 +5,7 @@ workflows:
       flutter: stable
       xcode: latest
       groups: # <-- THIS IS THE CRITICAL FIX
-        - app_store_connect 
+        - "My App Store Key"
       vars:
         BUNDLE_ID: "com.example.wClub" 
     scripts:
