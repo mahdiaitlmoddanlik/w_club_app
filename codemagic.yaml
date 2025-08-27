@@ -4,8 +4,17 @@ workflows:
     environment:
       flutter: stable
       xcode: latest
+      # ADD THIS GROUP
+      vars:
+        BUNDLE_ID: "com.example.w_club" # <-- IMPORTANT: REPLACE WITH YOUR BUNDLE ID
     scripts:
       - flutter pub get
       - flutter build ipa --export-options-plist=ios/exportOptions.plist
+    # ADD THIS ENTIRE DISTRIBUTION BLOCK
+    distribution:
+      app_store_connect:
+        api_key: $APP_STORE_CONNECT_API_KEY      # This references the key you added in the UI
+        key_id: 2NN3S2N4RT                       # The Key ID from your screenshot
+        issuer_id: 6babf10e-105d-4843-975f-92365a4a8c06 # The Issuer ID from your screenshot
     artifacts:
       - build/ios/ipa/*.ipa
