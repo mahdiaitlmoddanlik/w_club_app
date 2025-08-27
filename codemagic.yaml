@@ -4,25 +4,21 @@ workflows:
     environment:
       flutter: stable
       xcode: latest
+      groups: # <-- THIS IS THE CRITICAL FIX
+        - app_store_connect 
       vars:
-        # IMPORTANT: Make sure this matches your actual bundle ID from Xcode
         BUNDLE_ID: "com.example.wClub" 
     scripts:
-      # --- NEW: PREPARE SIGNING ENVIRONMENT ---
       - keychain initialize
       - app-store-connect fetch-signing-files "$BUNDLE_ID" --type IOS_APP_STORE
       - keychain add-certificates
       - xcode-project use-profiles
-      
-      # --- STANDARD BUILD STEPS ---
       - flutter pub get
       - flutter build ipa
-      
     artifacts:
       - build/ios/ipa/*.ipa
-      
     publishing:
       app_store_connect:
         api_key: $APP_STORE_CONNECT_API_KEY
-        key_id: 2NN3S2N4RT
-        issuer_id: 6babf10e-105d-4843-975f-92365a4a8c06
+        key_id: $APP_STORE_CONNECT_KEY_ID
+        issuer_id: $APP_STORE_CONNECT_ISSUER_ID
