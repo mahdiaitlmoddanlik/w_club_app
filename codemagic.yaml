@@ -4,25 +4,16 @@ workflows:
     environment:
       flutter: stable
       xcode: latest
-      groups:
-        - "My App Store Key"
       vars:
-        BUNDLE_ID: "com.example.wClub"   # must match Xcode project
+        # Must match the bundle id in ios/Runner.xcodeproj (yours already does)
+        BUNDLE_ID: "com.example.wClub"
+    # <-- No groups or ASC env vars needed when using ios_signing automatic mode
     scripts:
-      - keychain initialize
-      - |
-          app-store-connect fetch-signing-files "$BUNDLE_ID" \
-            --type IOS_APP_DEVELOPMENT \
-            --issuer-id "$APP_STORE_CONNECT_ISSUER_ID" \
-            --key-id "$APP_STORE_CONNECT_KEY_IDENTIFIER" \
-            --private-key "$APP_STORE_CONNECT_PRIVATE_KEY" \
-            --create
-      - keychain add-certificates
-      - xcode-project use-profiles
       - flutter pub get
       - flutter build ipa --export-method development
+    ios_signing:
+      # This block turns on Automatic iOS code signing
+      distribution_type: development
+      bundle_identifier: $BUNDLE_ID
     artifacts:
       - build/ios/ipa/*.ipa
-
-
-    # No App Store publishing – we’re just saving the IPA
