@@ -7,9 +7,22 @@ workflows:
     scripts:
       - name: Use uploaded signing assets
         script: |
+          set -e
           keychain initialize
           keychain add-certificates        # imports your WClub Dev P12
           xcode-project use-profiles       # applies WClub Dev Profile (com.example.wClub)
+          echo "==> Installed provisioning profiles:"
+          ls -la "$HOME/Library/MobileDevice/Provisioning Profiles" || true
+          echo "==> Imported code signing identities:"
+          security find-identity -v -p codesigning || true
+
+      - name: Install CocoaPods workspace
+        script: |
+          set -e
+          cd ios
+          pod repo update || true
+          pod install
+          cd ..
 
       - name: Get deps
         script: flutter pub get
