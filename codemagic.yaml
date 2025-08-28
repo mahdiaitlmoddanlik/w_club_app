@@ -1,19 +1,27 @@
 workflows:
   ios-local-dev:
-    name: iOS – Local device install
+    name: iOS – Dev IPA (diagnostic)
     environment:
       flutter: stable
       xcode: latest
     scripts:
-      - name: Use uploaded signing assets
+      - name: Import signing assets (don’t fail on missing)
         script: |
-          set -e
+          # Don't die on non-zero so we can see output
+          set +e
           keychain initialize
-          keychain add-certificates        # imports your WClub Dev P12
-          xcode-project use-profiles       # applies WClub Dev Profile (com.example.wClub)
-          echo "==> Installed provisioning profiles:"
+          echo "=== keychain add-certificates ==="
+          keychain add-certificates
+          echo "exit code: $?"
+
+          echo "=== xcode-project use-profiles ==="
+          xcode-project use-profiles
+          echo "exit code: $?"
+
+          echo "=== Provisioning profiles directory ==="
           ls -la "$HOME/Library/MobileDevice/Provisioning Profiles" || true
-          echo "==> Imported code signing identities:"
+
+          echo "=== Code signing identities in keychain ==="
           security find-identity -v -p codesigning || true
 
       - name: Install CocoaPods workspace
@@ -24,10 +32,10 @@ workflows:
           pod install
           cd ..
 
-      - name: Get deps
+      - name: Flutter deps
         script: flutter pub get
 
-      - name: Build signed IPA (Development)
+      - name: Build signed IPA
         script: flutter build ipa --export-method development
 
     artifacts:
