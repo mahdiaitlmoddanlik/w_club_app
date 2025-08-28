@@ -1,30 +1,21 @@
 workflows:
-  ios-testflight:
-    name: iOS – TestFlight
+  ios-local-dev:
+    name: iOS – Local device install
     environment:
       flutter: stable
       xcode: latest
-      groups:
-        - "My App Store Key"   # must contain: APP_STORE_CONNECT_ISSUER_ID, APP_STORE_CONNECT_KEY_IDENTIFIER, APP_STORE_CONNECT_PRIVATE_KEY
-      vars:
-        BUNDLE_ID: "com.example.wClub"
     scripts:
-      - keychain initialize
-      - |
-          app-store-connect fetch-signing-files "$BUNDLE_ID" \
-            --type IOS_APP_STORE \
-            --issuer-id "$APP_STORE_CONNECT_ISSUER_ID" \
-            --key-id "$APP_STORE_CONNECT_KEY_IDENTIFIER" \
-            --private-key "$APP_STORE_CONNECT_PRIVATE_KEY" \
-            --create
-      - keychain add-certificates
-      - xcode-project use-profiles
-      - flutter pub get
-      - flutter build ipa --export-method app-store
+      - name: Use uploaded signing assets
+        script: |
+          keychain initialize
+          keychain add-certificates        # imports your WClub Dev P12
+          xcode-project use-profiles       # applies WClub Dev Profile (com.example.wClub)
+
+      - name: Get deps
+        script: flutter pub get
+
+      - name: Build signed IPA (Development)
+        script: flutter build ipa --export-method development
+
     artifacts:
       - build/ios/ipa/*.ipa
-    publishing:
-      app_store_connect:
-        issuer_id: $APP_STORE_CONNECT_ISSUER_ID
-        key_id: $APP_STORE_CONNECT_KEY_IDENTIFIER
-        api_key: $APP_STORE_CONNECT_PRIVATE_KEY
