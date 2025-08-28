@@ -1,40 +1,41 @@
 workflows:
   ios-local-dev:
-    name: iOS – Dev IPA (direct files)
+    name: iOS – Dev IPA using uploaded certs/profile
     environment:
       flutter: stable
       xcode: latest
+
     scripts:
-      - name: Decode & import signing files
-        script: |
-          set -e
-          keychain initialize
-
-          P12_PATH="$CM_BUILD_DIR/ios_dev.p12"
-          PROFILE_DIR="$HOME/Library/MobileDevice/Provisioning Profiles"
-          PROFILE_PATH="$PROFILE_DIR/wclub.mobileprovision"
-          mkdir -p "$PROFILE_DIR"
-
-          # decode to real files
-          printf "%s" "$CERTIFICATE_P12_B64" | base64 --decode > "$P12_PATH"
-          printf "%s" "$DEV_PROFILE_B64"     | base64 --decode > "$PROFILE_PATH"
-
-          # import p12 and confirm identities
-          security import "$P12_PATH" -P "$CERTIFICATE_PASSWORD" -A
-          security find-identity -v -p codesigning
-
-      - name: Install CocoaPods workspace
-        script: |
-          cd ios
-          pod repo update || true
-          pod install
-          cd ..
-
+      # 1) Get deps (lets Flutter generate any iOS files it needs)
       - name: Flutter deps
         script: flutter pub get
 
-      - name: Build signed IPA (Development)
-        script: flutter build ipa --export-method development
+      # 2) Build the iOS app WITHOUT signing (produces the Xcode workspace & archive inputs)
+      - name: Build iOS (no codesign)
+        script: flutter build ios --release --no-codesign
+
+      # 3) Import your uploaded p12 and apply your uploaded provisioning profile
+      - name: Import signing assets
+        script: |
+          set -e
+          keychain initialize
+          keychain add-certificates || true          # imports WClub Dev P12
+          xcode-project use-profiles || true         # applies WClub Dev Profile (com.example.wClub)
+          echo "=== Identities ==="
+          security find-identity -v -p codesigning || true
+          echo "=== Profiles ==="
+          ls -la "$HOME/Library/MobileDevice/Provisioning Profiles" || true
+
+      # 4) Export the signed IPA from the Xcode archive using the installed profile/cert
+      - name: Sign & export IPA (development)
+        script: |
+          set -e
+          # Build and sign using Codemagic's xcode-project helper
+          xcode-project build-ipa \
+            --workspace ios/Runner.xcworkspace \
+            --scheme Runner \
+            --archive-path build/ios/archive/Runner.xcarchive \
+            --export-method development
 
     artifacts:
       - build/ios/ipa/*.ipa
