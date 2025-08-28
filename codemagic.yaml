@@ -6,36 +6,29 @@ workflows:
       xcode: latest
 
     scripts:
-      # 1) Get deps (lets Flutter generate any iOS files it needs)
       - name: Flutter deps
         script: flutter pub get
 
-      # 2) Build the iOS app WITHOUT signing (produces the Xcode workspace & archive inputs)
       - name: Build iOS (no codesign)
         script: flutter build ios --release --no-codesign
 
-      # 3) Import your uploaded p12 and apply your uploaded provisioning profile
       - name: Import signing assets
         script: |
           set -e
           keychain initialize
-          keychain add-certificates || true          # imports WClub Dev P12
-          xcode-project use-profiles || true         # applies WClub Dev Profile (com.example.wClub)
-          echo "=== Identities ==="
+          keychain add-certificates         # imports your WClub Dev P12
+          xcode-project use-profiles        # applies WClub Dev Profile (com.example.wClub)
           security find-identity -v -p codesigning || true
-          echo "=== Profiles ==="
           ls -la "$HOME/Library/MobileDevice/Provisioning Profiles" || true
 
-      # 4) Export the signed IPA from the Xcode archive using the installed profile/cert
       - name: Sign & export IPA (development)
         script: |
           set -e
-          # Build and sign using Codemagic's xcode-project helper
-          xcode-project build-ipa \
-            --workspace ios/Runner.xcworkspace \
-            --scheme Runner \
-            --archive-path build/ios/archive/Runner.xcarchive \
-            --export-method development
+          if [ -d "ios/Runner.xcworkspace" ]; then
+            xcode-project build-ipa --workspace ios/Runner.xcworkspace --scheme Runner --export-method development
+          else
+            xcode-project build-ipa --project ios/Runner.xcodeproj      --scheme Runner --export-method development
+          fi
 
     artifacts:
       - build/ios/ipa/*.ipa
